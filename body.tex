@@ -175,6 +175,32 @@ The FBS operates in a continuous cycle of three steps:
 %
 This cycle repeats continuously while the FBS is in operation.
 
+\subsection{Scheduler Configuration}
+\label{sec:configuration}
+
+A specific FBS configuration is defined by writing Python code that constructs a
+set of \texttt{Survey} instances and arranges them into prioritized tiers within
+the \texttt{CoreScheduler}. A higher-tier survey always takes priority over a
+lower-tier survey: lower tiers execute only when no survey in any higher tier has
+a feasible observation to request. Within each tier, surveys are ranked by their
+current reward values. Each \texttt{Survey} instance contains its own set of
+\texttt{BasisFunction} objects, which collectively define the constraints and
+optimization criteria that guide that survey's observation selection.
+
+The tier structure and the number of surveys per tier are entirely determined by
+the use case. A configuration for the full LSST survey contains on the order of
+ten tiers. The highest tier holds a set of eleven \texttt{ScriptedSurvey}
+instances dedicated to Target of Opportunity (ToO) observations; if a ToO is
+triggered, these surveys take priority provided their constraints are met. The
+second and third tiers are populated with one or two \texttt{ScriptedSurvey}
+instances targeting Deep Drilling Field observations. Reward-based surveys
+covering large sky areas with different cadence goals fill the remaining tiers,
+with lower-priority gap-filling surveys occupying the bottom tier. By contrast, a
+simpler configuration for a commissioning task or targeted observing program
+might use a single tier with only one or two surveys. This flexibility allows the
+same scheduling framework to serve purposes ranging from ten-year survey
+simulations to short on-sky commissioning sequences.
+
 
 \section{Survey Simulations}
 \label{sec:simulations}
@@ -285,6 +311,8 @@ overall footprint. Planning for the SV survey was itself supported by simulation
 run with the FBS, which were used to position the 3{,}000\,deg$^{2}$ footprint
 on the sky for optimal visibility during the SV observing period.
 
+%% KEEPING CONFIGURATIONS? 
+
 \subsubsection{Debugging with Artifacts}
 \label{sec:debugging}
 
@@ -338,8 +366,8 @@ have been sufficient to diagnose the majority of issues encountered to date.
 
 
 
-\subsection{Pre-night Simulations vs.\ On-sky Outcomes}
-\label{sec:prenight}
+%\subsection{Pre-night Simulations vs.\ On-sky Outcomes}
+%\label{sec:prenight}
 
 % TODO: compare pre-night FBS simulations with the observations actually
 % acquired during commissioning and early operations.
