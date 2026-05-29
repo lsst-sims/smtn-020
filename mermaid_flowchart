@@ -1,0 +1,37 @@
+Converted to pdf using https://mermaid2img.com
+
+---
+config:
+  flowchart:
+    curve: natural
+
+---
+
+flowchart TD
+      A@{ shape: circle, label: "Sunset" }  
+
+    A --> B@{ shape: lin-rect, label: "Update Conditions"}
+    style B stroke-width:3px
+
+    B ==> C@{ shape: lin-rect, label: "Request Observation"}
+   style C stroke-width:3px
+    C == "Observation acquired" ===>  L@{ shape: lin-rect, label: "Add acquired observation"} 
+    style L stroke-width:3px
+    L  ==> B
+
+   C --->D
+   G ---> C
+   subgraph tier  [Choose desired observation]
+        D@{ shape: circle, label: "Current tier"}
+        D --> E@{ shape: processes, label: "Check surveys"}
+        E --> F@{ shape: diamond, label: "Any feasible?"}
+        F -- NO --> H@{shape: process, label: "Go to next tier"} --> D
+        F -- YES ---> G@{shape: process, label: "Survey with highest reward in tier generates observation"} 
+     end    
+  
+
+    L --> M@{ shape: circle, label: "Sunrise"}
+
+
+
+

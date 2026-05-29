@@ -173,7 +173,19 @@ The FBS operates in a continuous cycle of three steps:
     back into the scheduler, updating internal state.
 \end{enumerate}
 %
-This cycle repeats continuously while the FBS is in operation.
+This cycle repeats continuously while the FBS is in operation. Figure~\ref{fig:flowchart} illustrates this process. 
+
+\begin{figure}
+  \centering
+  \includegraphics[width=0.8\textwidth]{figs/flowchart.pdf}
+  \caption{When the FBS is active, it continually cycles through the process of ingesting telemetry about 
+  the observatory conditions, returning requests for observations, and then ingesting information about acquired
+  observations. When choosing observations in response to a request, the CoreScheduler iterates through the 
+  configured surveys. These surveys are arranged into tiers; surveys only compete within their own tier. If any survey
+  within a given tier finds feasible observations, those observations will be chosen over any surveys in lower-ranking tiers.
+  Within a given tier, the survey with the highest reward will request observations.}
+    \label{fig:flowchart}
+\end{figure}
 
 \subsection{Scheduler Configuration}
 \label{sec:configuration}
@@ -278,7 +290,7 @@ rather than an imager alone---so the cycle of requesting and reporting
 observations was considerably simpler. The slower cadence and longer exposures
 also gave observing specialists more opportunity---and more need---to modify
 observations as they were acquired (e.g., changing the order or repeating a
-failed observation), and these ad hoc variations were difficult to capture
+failed observation) outside of the FBS interface, and these ad hoc variations were difficult to capture
 in the recorded artifacts. The scheduling decisions themselves were also
 simpler: the target list was short and the selection algorithms bore little
 resemblance to those required for the full LSST survey. AuxTel use was therefore
@@ -309,25 +321,41 @@ ecliptic were targeted for observations in a mode roughly approximating standard
 LSST Wide-Fast-Deep operations, albeit with a denser cadence and a smaller
 overall footprint. Planning for the SV survey was itself supported by simulations
 run with the FBS, which were used to position the 3{,}000\,deg$^{2}$ footprint
-on the sky for optimal visibility during the SV observing period.
+on the sky for optimal visibility during the SV observing period. 
 
-%% KEEPING CONFIGURATIONS? 
+The FBS configuration used for the SV survey exercised most of the key features
+required for the full LSST survey. The configuration included multiple tiers,
+with reward-based surveys driving the bulk of the wide-area observations and
+\texttt{ScriptedSurvey} instances handling Deep Drilling Fields.
+Operating in this mode provided commissioning experience that was not possible
+with the simpler programs used earlier. The FBS was now making genuine
+scheduling decisions, selecting the next pointing from a relatively large pool of
+candidates based on current conditions and survey history rather than
+executing a short, predetermined sequence on a single field. The success of the 
+FBS and SchedulerCSC during the SV survey demonstrated their capability
+of scheduling the LSST during full operations.
+
 
 \subsubsection{Debugging with Artifacts}
 \label{sec:debugging}
 
-Debugging situations where the FBS did not behave as expected is supported
-by artifacts saved by the
-SchedulerCSC during operations. These artifacts include a
-snapshot of the telemetry (\texttt{Conditions}) passed to the FBS and a
-serialized copy of the FBS itself after ingesting that telemetry. Together, these
-snapshots allow us to recreate the FBS at the exact moment observations were
-requested and inspect its full internal state to understand why particular
-observations were chosen. Additional records include the list of upcoming
-requested observations (``targets'') and completed observations
-(``observations''), both recorded in the LSST Engineering Facilities Database
-(EFD). A few examples of issues found and resolved during this phase
-include:
+Debugging situations where the FBS did not behave as expected is supported by
+artifacts saved by the SchedulerCSC during on-sky operations at the summit.
+These artifacts include a snapshot of the telemetry (\texttt{Conditions}) passed
+to the FBS and a serialized copy of the FBS itself after ingesting that
+telemetry. Together, these snapshots allow us to recreate the FBS at the exact
+moment observations were requested and inspect its full internal state to
+understand why particular observations were chosen. The Python configurations
+for the FBS are maintained in a git repository deployed at the summit. The git
+hash of this repository, the version of the companion configuration-management
+package \texttt{ts\_fbs\_utils}, and the version of \texttt{rubin\_scheduler}
+are all recorded in the LSST Engineering Facilities Database (EFD), providing a
+complete record of the scheduler configuration in use at any given time.
+Additionally, the SchedulerCSC's list of upcoming observations (``targets'')
+and completed observations (``observations'') are also recorded in the EFD and
+can be compared against records of acquired observations generated from the
+images themselves. A few examples of issues found and resolved during this
+phase include:
 %
 \begin{itemize}
   \item \textbf{Unexpected slew to an unrelated field.}
@@ -365,22 +393,20 @@ the artifacts recorded by the FBS and SchedulerCSC have proven invaluable and
 have been sufficient to diagnose the majority of issues encountered to date.
 
 
-
-%\subsection{Pre-night Simulations vs.\ On-sky Outcomes}
-%\label{sec:prenight}
-
-% TODO: compare pre-night FBS simulations with the observations actually
-% acquired during commissioning and early operations.
-
 \section{Lessons Learned}\label{sec:lessonslearned}
 
-configuration challenges and process
 
-downstream data management needs
+target of opportunity configurations (ref Sean's paper) and updating coverage for very large ToOs
 
-interactions with the SCOC and the community
+downstream data management needs (templates and adding a template tier)
+
+generating prenight simulations and longer term simulations (meeting challenge of weather and downscope)
+
+interactions with the SCOC and the community (reporting)
 
 \section{Conclusions}\label{sec:conclusions}
+
+Going forward into prelsst early operations and into the future
 
 Working well, evolving simulations.
 
