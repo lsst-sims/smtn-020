@@ -392,6 +392,14 @@ for the longer observation sequences used on the Simonyi telescope. Overall,
 the artifacts recorded by the FBS and SchedulerCSC have proven invaluable and
 have been sufficient to diagnose the majority of issues encountered to date.
 
+It is worth noting that all of the issues described above arose from the
+relatively simple \texttt{FieldSurvey}-based configurations used during the
+earliest stages of commissioning. No comparable issues were observed during
+execution of the SV program. One Target of Opportunity (ToO) sequence failed
+to execute when desired, but this was quickly traced to the fact that the ToO
+target was closer than 30\,degrees from the Moon: the FBS was behaving exactly
+as intended, preventing an accidental overload of LSSTCam.
+
 
 \section{Lessons Learned}\label{sec:lessonslearned}
 
