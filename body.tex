@@ -234,7 +234,8 @@ tiers. This complexity supports a wide range of observing modes, including:
 \end{itemize}
 %
 This flexibility allows the same scheduling framework to serve purposes ranging
-from ten-year survey simulations to short on-sky commissioning sequences.
+from short on-sky commissioning sequences to the full LSST survey, and from
+real-time observing to ten year simulations. 
 
 
 \section{Survey Simulations}
@@ -245,7 +246,7 @@ night under realistic observing conditions, while working towards scientific goa
 that can only be realized after much longer timeframes. To tune these algorithms and select
 the overall survey strategy that best satisfies the wide range of LSST science
 goals at the end of the ten year survey, the FBS is often run in a simulation mode using the same
-\texttt{rubin\_scheduler} code base as in real-time operations---with simulated
+\texttt{rubin\_scheduler} code base as in real-time operations, but with simulated
 telemetry replacing measurements from the summit and a model of the
 observatory's response replacing actually acquired observations.  
 This allows us to test variations on the scheduler configuration as well as generate 
@@ -308,6 +309,7 @@ incorporated.
   Similar tests run during the preLSST early operations phase show similar behavior.}
     \label{fig:slew}
 \end{figure}
+
 
 \section{Early On-sky Use}
 \label{sec:onsky}
@@ -512,6 +514,32 @@ minimum required number of images in regions of sky that do not yet meet the
 template goal, activated when atmospheric seeing is good. This increases the
 likelihood that the full sky will reach the required number of high-quality
 images in each bandpass.
+
+\subsection{Comparison of Simulations to On-Sky Performance}
+\label{sec:comp}
+
+The SV survey provided a valuable opportunity to compare simulated observations
+against those actually acquired. We were able to validate our model telemetry
+inputs, but comparing the more detailed behavior of the FBS proved challenging.
+The principal difficulty was that the SV survey was not the sole activity on
+the telescope: large portions of many nights were spent on engineering tests,
+and additional nights were lost to weather, so the periods of true SV
+observing were neither continuous nor predictable in advance.
+
+Using a retrospective approach, running simulations only over the intervals
+during which the SV program was demonstrably active on-sky, we were able to
+reproduce the overall number of visits to within roughly 10\%, with a consistent
+general pattern of coverage on the sky.  The remaining discrepancy can be 
+attributed to several factors: scatter in the visit gap (as discussed in
+Section~\ref{sec:obs_models}); short faults that fell below our threshold for
+ending a continuous observing interval but nevertheless reduced on-sky
+efficiency; and differences in fault recovery between the simulation and real
+operations, in particular the simulation's assumption that the telescope
+returns to a parked position after a fault rather than remaining at the last
+pointing.  This is an area we continue working on improvement. 
+Additional telemetry from the summit about the observatory state, including 
+weather closures or periods of fault, is now available and will provide 
+useful inputs.
 
 \subsection{Survey Progress Reporting}
 
