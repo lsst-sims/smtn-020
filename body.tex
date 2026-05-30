@@ -26,10 +26,13 @@ exposure in service of the survey's broad goals. The decision-making process mus
 be flexible enough to accommodate new constraints or evolving goals, and be
 capable of executing a ten-year simulation in a short time period to permit
 survey strategy optimization based on quantitative metrics developed by the
-project and the astronomical community. To meet these requirements, we have
-developed an automated scheduler called the Feature Based Scheduler (FBS),
-implemented in the \texttt{rubin\_scheduler} software
-package~\cite{peter_yoachim_2026_18395761}.
+project and the astronomical community.  To meet these requirements, we have
+developed an automated scheduler called the Feature Based Scheduler (FBS). The
+FBS evolved from an earlier scheduler developed for initial LSST survey
+simulations~\cite{2014SPIE.9150E..15D}. Its current form reflects a subsequent redesign
+informed by Operations Research methods, better supporting the breadth and
+complexity of LSST scheduling~\cite{2019AJ....157..151N}.  The FBS is implemented in the
+\texttt{rubin\_scheduler} software package~\cite{peter_yoachim_2026_18395761}.
 
 This paper describes the Feature-Based Scheduler implementation
 (Section~\ref{sec:implementation}), the process for generating and analyzing
@@ -255,8 +258,10 @@ have been produced to date, refining the scheduler configuration to balance scie
 under the guidance of the Survey Cadence Optimization Committee (SCOC). 
 The process of optimizing the survey strategy is
 documented in Bianco et al.~\cite{2022ApJS..258....1B} and has involved significant
-input from the broader astronomical community. Simulations will continue
-throughout operations, responding to evolution in the scientific landscape and
+input from the broader astronomical community. Quantitative analysis and comparison 
+of these simulations is carried out with the \texttt{rubin\_sim}~\cite{peter_yoachim_2026_20451985}
+ MAF package~\cite{2014SPIE.9149E..0BJ}. 
+Simulations will continue throughout operations, responding to evolution in the scientific landscape and
 providing a means to evaluate the impact of observatory performance updates.
 
 \subsection{Sky and Atmospheric Models}
