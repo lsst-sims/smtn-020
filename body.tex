@@ -29,7 +29,7 @@ survey strategy optimization based on quantitative metrics developed by the
 project and the astronomical community. To meet these requirements, we have
 developed an automated scheduler called the Feature Based Scheduler (FBS),
 implemented in the \texttt{rubin\_scheduler} software
-package~\cite{DOI}.
+package~\cite{peter_yoachim_2026_18395761}.
 
 This paper describes the Feature-Based Scheduler implementation
 (Section~\ref{sec:implementation}), the process for generating and analyzing
@@ -195,25 +195,43 @@ This cycle repeats continuously while the FBS is in operation. Figure~\ref{fig:f
 A specific FBS configuration is defined by writing Python code that constructs a
 set of \texttt{Survey} instances and arranges them into prioritized tiers within
 the \texttt{CoreScheduler}. A higher-tier survey always takes priority over a
-lower-tier survey: lower tiers execute only when no survey in any higher tier has
-a feasible observation to request. Within each tier, surveys are ranked by their
-current reward values. Each \texttt{Survey} instance contains its own set of
-\texttt{BasisFunction} objects, which collectively define the constraints and
-optimization criteria that guide that survey's observation selection.
+lower-tier survey: lower tiers execute only when no survey in any higher tier
+has a feasible observation to request. Within each tier, surveys are ranked by
+their current reward values. Each \texttt{Survey} instance contains its own set
+of \texttt{BasisFunction} objects, which collectively define the constraints
+and optimization criteria that guide that survey's observation selection.
 
 The tier structure and the number of surveys per tier are entirely determined by
-the use case. A configuration for the full LSST survey contains on the order of
-ten tiers. The highest tier holds a set of eleven \texttt{ScriptedSurvey}
-instances dedicated to Target of Opportunity (ToO) observations; if a ToO is
-triggered, these surveys take priority provided their constraints are met. The
-second and third tiers are populated with one or two \texttt{ScriptedSurvey}
-instances targeting Deep Drilling Field observations. Reward-based surveys
-covering large sky areas with different cadence goals fill the remaining tiers,
-with lower-priority gap-filling surveys occupying the bottom tier. By contrast, a
-simpler configuration for a commissioning task or targeted observing program
-might use a single tier with only one or two surveys. This flexibility allows the
-same scheduling framework to serve purposes ranging from ten-year survey
-simulations to short on-sky commissioning sequences.
+the use case. A simple configuration for a commissioning task or a targeted
+observing program might use a single tier with only one or two surveys. By
+contrast, a configuration for the full LSST survey contains on the order of ten
+tiers. This complexity supports a wide range of observing modes, including:
+%
+\begin{itemize}
+  \item \textbf{Target of Opportunity (ToO) observations}, in which a
+    pre-defined sequence of observations must be executed---if conditions
+    permit---in response to an external alert trigger.
+  \item \textbf{Deep Drilling Field (DDF) observations}, in which a set of five
+    pointings are observed with a regular cadence and a specific visit sequence,
+    ideally at the optimal time of night and during the desired phases of the
+    lunar cycle, with the ability to catch up if observations are missed due to
+    downtime or weather.
+  \item \textbf{Wide-area observations acquired in pairs of visits}, where the
+    two visits are separated by a predefined interval and acquired in a
+    pre-specified combination of bandpasses. Pointing and bandpass selection
+    must simultaneously balance depth, coverage, and efficiency (as described
+    for reward-based surveys above) while distributing visits according to the
+    desired coverage ratios between bandpasses and across the sky. 
+    There can be multiple tiers or surveys, where wide-area observations
+    are configured with different requirements or different pair separations, or
+    even without pairs at all.  
+  \item \textbf{Microsurveys with specialized requirements}, such as
+    twilight observations of the ecliptic toward the Sun, which acquire a quad
+    of visits per pointing rather than a pair.
+\end{itemize}
+%
+This flexibility allows the same scheduling framework to serve purposes ranging
+from ten-year survey simulations to short on-sky commissioning sequences.
 
 
 \section{Survey Simulations}
@@ -232,7 +250,7 @@ predictions for survey performance into the future.
 
 The FBS has been tested and developed against simulated telemetry and
 observation models since 2018, beginning with the LSST Call for White Papers on
-cadence optimization~\cite{PSTN-001}. Over 1000 simulated surveys
+cadence optimization~\cite{Document-28382}. Over 1000 simulated surveys
 have been produced to date, refining the scheduler configuration to balance science performance
 under the guidance of the Survey Cadence Optimization Committee (SCOC). 
 The process of optimizing the survey strategy is
@@ -246,13 +264,13 @@ providing a means to evaluate the impact of observatory performance updates.
 
 To support survey strategy simulations, we have developed high-fidelity models
 of the expected sky conditions. An atmospheric seeing database based on
-historical DIMM measurements from CTIO~\cite{RTN-XXX} is combined with the
+historical DIMM measurements from CTIO~\cite{RTN-022} is combined with the
 expected system contribution to seeing to produce wavelength- and
 airmass-dependent estimates of delivered image quality. A model of sky
 brightness as a function of time, bandpass, and position on the sky has been
-validated against on-site measurements at the summit~\cite{SKYBRIGHT}.
-Combining these models with the expected optical throughput of the telescope
-yields an estimate of the five-sigma point-source depth for each image. Weather
+validated against on-site measurements at the summit~\cite{2016SPIE.9910E..1AY}.
+Combining these models with the expected optical throughput of the telescope 
+yields an estimate of the five-sigma point-source depth for each image~\cite{SMTN-002}. Weather
 downtime is extrapolated from historical cloud-coverage records collected
 on-site~\cite{WEATHER}.
 
@@ -328,7 +346,7 @@ on the sky for optimal visibility during the SV observing period.
 The FBS configuration used for the SV survey exercised most of the key features
 required for the full LSST survey. The configuration included multiple tiers,
 with reward-based surveys driving the bulk of the wide-area observations and
-\texttt{ScriptedSurvey} instances handling Deep Drilling Fields.
+\texttt{ScriptedSurvey} instances handling Deep Drilling Fields (DDFs).
 Operating in this mode provided commissioning experience that was not possible
 with the simpler programs used earlier. The FBS was now making genuine
 scheduling decisions, selecting the next pointing from a relatively large pool of
@@ -356,8 +374,8 @@ complete record of the scheduler configuration in use at any given time.
 Additionally, the SchedulerCSC's list of upcoming observations (``targets'')
 and completed observations (``observations'') are also recorded in the EFD and
 can be compared against records of acquired observations generated from the
-images themselves. A few examples of issues found and resolved during this
-phase include:
+images themselves. A few examples of issues found and resolved using these 
+artifacts during this phase include:
 %
 \begin{itemize}
   \item \textbf{Unexpected slew to an unrelated field.}
@@ -406,17 +424,144 @@ as intended, preventing an accidental overload of LSSTCam.
 \section{Lessons Learned}\label{sec:lessonslearned}
 
 
-target of opportunity configurations (ref Sean's paper) and updating coverage for very large ToOs
+The use of the FBS for the SV survey, as well as its subsequent use during
+Rubin's early operations phase, has generally gone very smoothly. There are, of
+course, areas with room for improvement, either in the algorithms of the FBS
+itself or in its interactions with the SchedulerCSC. We have also gained
+additional first-hand knowledge of the precise needs for survey progress
+reporting and for downstream data processing.
 
-downstream data management needs (templates and adding a template tier)
+\subsection{Target of Opportunity Handling}
 
-generating prenight simulations and longer term simulations (meeting challenge of weather and downscope)
+One particular area where we identified room for improvement was in Target of
+Opportunity (ToO) coverage. 
 
-interactions with the SCOC and the community (reporting)
+While Rubin will generally not be the instrument of
+choice for well-localized ToOs, such as solar system objects with well-known ephemerides, 
+during commissioning we triggered follow-up of the newly discovered
+interstellar comet 3I/ATLAS. We found that the framework for receiving alert
+locations in the FBS was not optimal for such well-localized events: the FBS
+attempted to cover not only the object's position but also the surrounding
+\texttt{nside=32} HEALPixels, leading to inefficient coverage of the actual
+target. We have since added logic to the FBS and to the messages that pass ToO
+information into it, allowing well-localized objects to be identified as such so
+that the FBS can focus on the exact position.
 
-\section{Conclusions}\label{sec:conclusions}
+Later, during the pre-LSST observing period, a ToO was triggered on
+gravitational-wave candidate S251112cm. This ToO covered an extremely large area
+of interest---larger than had been anticipated when designing the FBS ToO
+\texttt{ScriptedSurvey} templates. We found that the resulting coverage was
+inefficient: portions of the area of interest set below the horizon before the
+scheduler returned for subsequent cycles in different bandpasses. We have since
+added logic so that the FBS targets large ToO regions in smaller chunks ordered
+by Right Ascension, ensuring that the full area is covered before any portion
+sets.
 
-Going forward into prelsst early operations and into the future
+\subsection{Feedback from Data Management}
 
-Working well, evolving simulations.
+The SV survey was the first opportunity to understand how observations acquired
+over a large area, using configurations similar to those planned for LSST
+operations, would interact with Rubin's Data Management (DM) pipelines.
+
+Earlier commissioning surveys had observed the DDF pointings, but with sequences
+unique to early commissioning. The SV survey was the first to observe the DDFs
+using the planned LSST sequences, which included small night-to-night dithers
+but---for efficiency---no dithers within a single night. We found that, without
+a large set of background images to smooth over the chip gaps, the lack of
+intra-night dithering produced image sets that DM could not effectively combine
+into coadds. We therefore added intra-night dithering alongside the existing
+night-to-night dithers, both in the SV configuration and in the baseline LSST
+configuration.
+
+The wide-field portion of the SV survey was also the first opportunity to test
+template generation using images obtained from the standard LSST sky
+tessellation and coverage pattern. We found that, due to the effects of chip
+gaps and the need for complete coverage over detector-sized patches on the sky,
+DM required more input images than anticipated in order to build template
+coadds. The acceptable images were also subject to tighter constraints on image
+quality (PSF and cloud extinction) than we had originally expected. Although
+much of this came to light only after the SV survey was well underway, the
+lesson has been folded back into the LSST survey strategy: we have added a
+``template tier'' to the LSST configuration that prioritizes obtaining the
+minimum required number of images in regions of sky that do not yet meet the
+template goal, activated when atmospheric seeing is good. This increases the
+likelihood that the full sky will reach the required number of high-quality
+images in each bandpass.
+
+\subsection{Survey Progress Reporting}
+
+A recurring theme throughout the SV survey and early operations has been the
+need to communicate survey progress and near-term plans to the broader Rubin
+science community. We have iterated on several reporting mechanisms, each of
+which has informed our understanding of what the community finds most useful.
+
+Nightly reports summarizing the visits acquired during the previous night were
+generated automatically from rendered Jupyter notebooks and published shortly
+after each night's observing. These reports provided a consistent, low-latency
+view of survey progress and were well received. When specific feedback did
+reach us, we were able to act on it---for example, a community member asked
+whether we could report the number of visits acquired in pairs each night,
+and we added this to the nightly reports. 
+
+In parallel, we published less frequent but more in-depth reports on a
+dedicated website. These were authored by hand and could move beyond the bare
+record of acquired visits to discuss periods of bad weather, changes in
+commissioning goals, and other context that does not fit naturally into an
+automated notebook. These reports also included FBS simulations projecting
+likely coverage for the remainder of the SV period, giving readers a sense of
+where the survey was heading rather than only where it had been. Like the
+nightly reports, these in-depth summaries were very well received. 
+
+Looking ahead, we plan to add a third class of report describing the upcoming
+night: the planned configuration, the regions of sky likely to be observed,
+and the conditions under which various contingencies would apply. We expect
+this forward-looking view to be particularly useful for community members
+planning coordinated observations or follow-up programs, and for setting
+realistic expectations about which fields will be revisited on a given
+timescale. 
+
+Establishing more effective channels for community feedback on all
+three classes of report---nightly, in-depth, and forward-looking---remains an
+open area for improvement. Keeping the reports useful to
+the broad Rubin community requires balancing the specific needs of individual
+users against the readability of the report as a whole---a balance that is
+easier to strike with a structured feedback process than with ad hoc
+suggestions.
+
+
+\section{Conclusion}
+\label{sec:conclusion}
+
+The Feature-Based Scheduler has matured from a simulation tool used to explore
+LSST cadence strategies into the operational scheduler driving the Vera C.
+Rubin Observatory on the sky. Its design---a configurable set of \texttt{Survey}
+classes coordinated by the \texttt{CoreScheduler}, with reward calculations
+built from composable \texttt{BasisFunction} objects---has proven flexible
+enough to support a wide range of observing modes, from short commissioning
+sequences on a single field to the full complexity of the Science Validation
+survey and, ultimately, the ten-year LSST.
+
+Years of simulation work, carried out in close collaboration with the Survey
+Cadence Optimization Committee and the broader astronomical community, allowed
+the FBS to be tuned against realistic models of the sky, atmosphere, and
+observatory long before first light. On-sky commissioning---first with the
+Auxiliary Telescope and then with the Simonyi telescope and LSSTCam---validated
+the integration of the FBS with the SchedulerCSC and exercised progressively
+more of the scheduler's capabilities, culminating in the SV survey's
+demonstration of LSST-style operations.
+
+Early operational experience has also identified concrete areas for continued
+development: improved handling of well-localized and very large Target of
+Opportunity regions, configuration changes informed by feedback from the Data
+Management pipelines (intra-night DDF dithers and the addition of a template
+tier), and ongoing work to communicate survey progress and plans to the
+community in a way that is both informative and sustainable. These refinements
+will continue throughout operations as the scientific landscape evolves and as
+observatory performance is better characterized on the sky.
+
+With the FBS now scheduling LSST observations in real time, the framework
+described in this paper provides the foundation for ten years of survey
+operations and for the continued optimization of Rubin's scientific return.
+
+
 
