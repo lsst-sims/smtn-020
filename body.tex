@@ -278,11 +278,31 @@ on-site~\cite{WEATHER}.
 \label{sec:obs_models}
 
 The model of observatory performance includes a high-fidelity model of the
-telescope itself, used to evaluate the slew time required between pointings.
+telescope itself, used to evaluate the slew time required between pointings. 
+We have validated predictions from the slew model against measurements of the time 
+required to move the Simonyi Telescope Mount Assembly (TMA) and found good
+agreement. We have also found that the total time required to complete slews during 
+commissioning and early operations has involved additional overheads for 
+telescope control processes and scripts to complete, adding some scatter
+in visit gaps that is not represented by our slew model. See Figure~\ref{fig:slew}. 
 Estimates of scheduled downtime due to planned engineering and maintenance, as
 well as unplanned downtime due to faults or technical issues, are also
 incorporated.
 
+\begin{figure}
+  \centering
+  \includegraphics[width=0.4\textwidth]{figs/SlewModelVsTMA.pdf}
+  \includegraphics[width=0.4\textwidth]{figs/SlewModelVsVisitGap.pdf}
+  \caption{The slew model could accurately predict the time required to move
+  the Simonyi Telescope Mount Assembly in altitude and azimuth, as shown by 
+  this comparison from a period during the SV survey, 2025-07-01 to 2025-07-10.
+  However, the slew model was still somewhat inaccurate in predicting the entire
+  visit gap. The offset of 1.6~seconds shown by the dotted red line can be explained
+  by time required to configure and run scripts to execute the next step in the slew, 
+  but the scatter from that offset out to about 13.5~seconds is less clear.
+  Similar tests run during the preLSST early operations phase show similar behavior.}
+    \label{fig:slew}
+\end{figure}
 
 \section{Early On-sky Use}
 \label{sec:onsky}
