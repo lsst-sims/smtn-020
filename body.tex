@@ -121,6 +121,10 @@ functions, the FBS cycles through the fields at an interval equal to or longer
 than the revisit gap, obtaining the predefined observation sequence at each
 field's location and moving to the next nearest field after each sequence.
 
+\paragraph{Target of Opportunity (\texttt{ToOScriptedSurvey})}
+The \texttt{ToOScriptedSurvey} class uses multiple inheretance from the above  \texttt{Survey} classes
+respond to target of opportunity (ToO) events. The current configuration includes strategies for following up mulitple gravitational wave event triggers, neutrino detector triggers, solar system objects, and Galactic supernova. Most of the ToO follow up strategies were initially developed in Andreoni et al, 2022~\cite{Andreoni2022}.
+
 \subsection{Masks and Constraints}
 \label{sec:masks}
 
@@ -482,7 +486,7 @@ of interest---larger than had been anticipated when designing the FBS ToO
 inefficient: portions of the area of interest set below the horizon before the
 scheduler returned for subsequent cycles in different bandpasses. We have since
 added logic so that the FBS targets large ToO regions in smaller chunks ordered
-by Right Ascension, ensuring that the full area is covered before any portion
+by Right Ascension, increasing the likelyhood that the full area is covered before any portion
 sets.
 
 \subsection{Feedback from Data Management}
