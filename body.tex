@@ -17,8 +17,8 @@ between pointings in under 5\,s. Refining the observing strategy has relied on
 an extended program of simulations and community engagement to quantify how
 strategy changes affect scientific outcomes.
 
-Scheduling decisions for the LSST---both in simulations and in real time at the
-summit---are complex and continuous. Each on-sky pointing must account for prior
+Scheduling decisions for the LSST, both in simulations and in real time at the
+summit, are complex and continuous. Each on-sky pointing must account for prior
 pointing history, current observatory status and performance, and prevailing
 weather and sky conditions. Decisions must both protect the facility (e.g.,
 avoid pointing too close to the Moon) and maximize the scientific return of every
@@ -74,7 +74,8 @@ current conditions satisfy the constraints for any observation in the list, the
 
 \paragraph{Reward-based surveys (\texttt{BaseMarkovSurvey}).}
 For surveys that must select optimal pointings across large areas of sky, the
-FBS provides the \texttt{BaseMarkovSurvey} base class and its subclasses.These surveys contain
+FBS provides the \texttt{BaseMarkovSurvey} base class and its subclasses. 
+These surveys contain
 \texttt{BasisFunction} objects, which calculate the reward value of potential
 observations given the current \texttt{Conditions}. A simple example of a
 \texttt{BasisFunction} is one that assigns higher reward to shorter slews: it
@@ -134,7 +135,10 @@ masks applied to all surveys include:
   \item Altitude and azimuth limits, including a zenith exclusion zone where
     tracking for the Simonyi Alt/Az mount is difficult.
   \item A Moon avoidance mask that ensures the telescope points no closer than
-    30\,degrees from the Moon, protecting the LSSTCam.
+    30\,degrees from the Moon. Observing too close to the Moon risks tripping 
+    the LSSTCam HVBias, requiring over 30 minutes to reset. With more testing 
+    and experience regarding the exact behavior near this limit, we may be able to 
+    reduce the avoidance zone; for the moment, this keeps the camera safely operational.
   \item A planet avoidance mask that excludes Jupiter, Mars, and Venus, as these
     bright planets move quickly enough that it is preferable to avoid them rather
     than attempt to observe through them.
@@ -212,10 +216,11 @@ tiers. This complexity supports a wide range of observing modes, including:
 %
 \begin{itemize}
   \item \textbf{Target of Opportunity (ToO) observations}, in which a
-    pre-defined sequence of observations must be executed---if conditions
-    permit---in response to an external alert trigger.
-  \item \textbf{Deep Drilling Field (DDF) observations}, in which a set of five
-    pointings are observed with a regular cadence and a specific visit sequence,
+    pre-defined sequence of observations must be executed if conditions
+    permit in response to an external alert trigger.
+  \item \textbf{Deep Drilling Field (DDF) observations}, in which a predefined
+  sequence of visits are executed with a regular cadence, independently observing
+   each of five DDF fields at appropriate times,
     ideally at the optimal time of night and during the desired phases of the
     lunar cycle, with the ability to catch up if observations are missed due to
     downtime or weather.
@@ -316,13 +321,14 @@ incorporated.
 
 At the summit, the FBS operates within the observatory's Scheduler Commandable
 SAL Component (SchedulerCSC). The SchedulerCSC manages all interfaces with the
-observatory itself---gathering telemetry, commanding pointing requests, and
+observatory itself: gathering telemetry, commanding pointing requests, and
 handling the timing and queuing of observations selected by the FBS.
 
 \subsection{Auxiliary Telescope}
 \label{sec:auxtel}
 
-Initial on-sky use of the FBS began with the Auxiliary Telescope (AuxTel) \cite{2022SPIE12182E..0RI} in
+Initial on-sky use of the FBS began with the Auxiliary Telescope (AuxTel) 
+\cite{2020SPIE11452E..0UI} in
 early 2022. This early deployment exercised the end-to-end integration of the
 FBS into the SchedulerCSC: gathering telemetry, passing it to the FBS, receiving
 requested pointings, commanding the telescope, and reporting acquired
@@ -332,10 +338,10 @@ preserved to support identification of unanticipated scheduling choices.
 
 However, AuxTel operation differed from the eventual LSST use case in several
 important respects. AuxTel's data-acquisition rate was much lower and its
-instrumentation more varied---it was frequently operated with a spectrograph
-rather than an imager alone---so the cycle of requesting and reporting
+instrumentation more varied (it was frequently operated with a spectrograph
+rather than an imager alone) so the cycle of requesting and reporting
 observations was considerably simpler. The slower cadence and longer exposures
-also gave observing specialists more opportunity---and more need---to modify
+also gave observing specialists more opportunity and need to modify
 observations as they were acquired (e.g., changing the order or repeating a
 failed observation) outside of the FBS interface, and these ad hoc variations were difficult to capture
 in the recorded artifacts. The scheduling decisions themselves were also
@@ -363,7 +369,7 @@ by including only a SlewBasisFunction.
 
 The full Science Validation (SV) survey with LSSTCam began at the end of April
 2025, marking the first deployment of an FBS configuration comparable in
-complexity to the full LSST survey. The SV survey plan is described in
+complexity to the full LSST survey. The SV survey plan is described in Clavar et al 2025~
 \cite{SITCOMTN-005}; in brief, approximately 3{,}000\,deg$^{2}$ along the
 ecliptic were targeted for observations in a mode roughly approximating standard
 LSST Wide-Fast-Deep operations, albeit with a denser cadence and a smaller
@@ -464,10 +470,12 @@ reporting and for downstream data processing.
 One particular area where we identified room for improvement was in Target of
 Opportunity (ToO) coverage. 
 
-While Rubin will generally not be the instrument of
-choice for well-localized ToOs, such as solar system objects with well-known ephemerides, 
-during commissioning we triggered follow-up of the newly discovered
-interstellar comet 3I/ATLAS. We found that the framework for receiving alert
+Using Rubin for ToO observations of well-localized sources is generally a poor use
+of resources, as these could be observed with other instruments with smaller fields of view.
+However, there may be cases where we do still receive a trigger for a ToO where the
+localization could fit within a single LSSTCam field of view, and efficient observing
+of such a ToO is important. During commissioning we triggered follow-up of the newly discovered
+interstellar comet 3I/ATLAS which had an ephemeris uncertainty of . We found that the framework for receiving alert
 locations in the FBS was not optimal for such well-localized events: the FBS
 attempted to cover not only the object's position but also the surrounding
 \texttt{nside=32} HEALPixels, leading to inefficient coverage of the actual
@@ -494,7 +502,7 @@ operations, would interact with Rubin's Data Management (DM) pipelines.
 Earlier commissioning surveys had observed the DDF pointings, but with sequences
 unique to early commissioning. The SV survey was the first to observe the DDFs
 using the planned LSST sequences, which included small night-to-night dithers
-but---for efficiency---no dithers within a single night. We found that, without
+but no dithers within a single night for better efficiency in observing. We found that, without
 a large set of background images to smooth over the chip gaps, the lack of
 intra-night dithering produced image sets that DM could not effectively combine
 into coadds. We therefore added intra-night dithering alongside the existing
@@ -553,7 +561,7 @@ Nightly reports summarizing the visits acquired during the previous night were
 generated automatically from rendered Jupyter notebooks and published shortly
 after each night's observing. These reports provided a consistent, low-latency
 view of survey progress and were well received. When specific feedback did
-reach us, we were able to act on it---for example, a community member asked
+reach us, we were able to act on it. For example, a community member asked
 whether we could report the number of visits acquired in pairs each night,
 and we added this to the nightly reports. 
 
@@ -598,8 +606,8 @@ survey and, ultimately, the ten-year LSST.
 Years of simulation work, carried out in close collaboration with the Survey
 Cadence Optimization Committee and the broader astronomical community, allowed
 the FBS to be tuned against realistic models of the sky, atmosphere, and
-observatory long before first light. On-sky commissioning---first with the
-Auxiliary Telescope and then with the Simonyi telescope and LSSTCam---validated
+observatory long before first light. On-sky commissioning, first with the
+Auxiliary Telescope and then with the Simonyi telescope and LSSTCam, validated
 the integration of the FBS with the SchedulerCSC and exercised progressively
 more of the scheduler's capabilities, culminating in the SV survey's
 demonstration of LSST-style operations.
