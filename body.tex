@@ -413,29 +413,47 @@ artifacts during this phase include:
 %
 \begin{itemize}
   \item \textbf{Unexpected slew to an unrelated field.}
-    After an initial image series, the FBS unexpectedly slewed away from the
-    intended field. The targets, observations, and telemetry all appeared
-    reasonable, but recreating the FBS from its snapshot reproduced the runaway
-    behavior. The root cause was a configuration error: the field selection was
+    After an initial sequence of visits, the FBS unexpectedly slewed away from the
+    intended field. The targets and observations recorded in the EFD were
+    reasonable and matched the on-sky behavior, but this was not the 
+    desired behavior (staying in the same location and taking a second sequence
+    of visits of the intended field). It proved difficult to investigate the behavior
+    from the snapshots and summit conditions available, as there was no
+    snapshot for the second series of visits -- only every snapshot was being 
+    saved. The survey scheduling team happened to be online and available
+    during the night and began to investigate, but were hampered by the missing
+    information. After several hours of work to attempt to fill in the gaps, we were able
+    to recreate the unexpected behavior. 
+    The root cause was a configuration error: the field selection was
     driven by a slew-time basis function that was configured per-bandpass, and the
     final bandpass in the observation sequence had been omitted from that
-    configuration by oversight. The FBS configuration was updated accordingly.
+    configuration by oversight. The FBS configuration was updated accordingly 
+    during the daytime, and a longer-term improvement to the underlying FBS
+    basis functions to make configuration easier in the future was put in place
+    with the next update of \texttt{rubin\_scheduler} at the summit, several weeks later.
+    In addition, the SchedulerCSC configuration was updated to record every snapshot,
+    not just every other snapshot. 
 
   \item \textbf{Incomplete bandpass sequence.}
     The FBS requested observations in several bandpasses, but only two were
     acquired. The FBS snapshot confirmed that the full sequence had been
-    requested, yet the recorded targets contained only a subset. The issue was
-    traced to a parameter in the SchedulerCSC that limited the maximum rate of
+    requested, yet the recorded targets contained only a subset. Additional log
+    messages recorded from the SchedulerCSC showed that the observations 
+    in the missing bandpass had been rejected due to filter change constraints.
+    When SchedulerCSC experts were available, the issue was traced to a 
+    parameter in the SchedulerCSC that limited the maximum rate of
     filter changes for engineering reasons; this limit needed to be increased
-    to permit the intended program to execute.
-
+    to permit the intended program to execute. This change was made and applied
+    within the same night. 
+    
   \item \textbf{Dropped observations in a dither pattern.}
     A requested dither sequence was only partially acquired. The FBS snapshot
     again confirmed that the complete set of observations had been requested, but
     some did not appear in the recorded targets. Correlated records in the EFD
     revealed that observing-script failures immediately prior to the missing
     observations had caused them to be dropped, requiring adjustments in the
-    SchedulerCSC's handling of script failures.
+    SchedulerCSC's handling of script failures. This was diagnosed during the 
+    next day after observing, and the fixes added at the next update of the SchedulerCSC.
 \end{itemize}
 
 Investigating these issues also led to improvements in the artifact-recording
@@ -452,7 +470,7 @@ earliest stages of commissioning. No comparable issues were observed during
 execution of the SV program. One Target of Opportunity (ToO) sequence failed
 to execute when desired, but this was quickly traced to the fact that the ToO
 target was closer than 30\,degrees from the Moon: the FBS was behaving exactly
-as intended, preventing an accidental overload of LSSTCam.
+as intended, keeping the observatory within predefined operational guidelines. 
 
 
 \section{Lessons Learned}\label{sec:lessonslearned}
@@ -475,7 +493,7 @@ of resources, as these could be observed with other instruments with smaller fie
 However, there may be cases where we do still receive a trigger for a ToO where the
 localization could fit within a single LSSTCam field of view, and efficient observing
 of such a ToO is important. During commissioning we triggered follow-up of the newly discovered
-interstellar comet 3I/ATLAS which had an ephemeris uncertainty of . We found that the framework for receiving alert
+interstellar comet 3I/ATLAS \cite{2026ApJ..1001L..35C}. We found that the framework for receiving alert
 locations in the FBS was not optimal for such well-localized events: the FBS
 attempted to cover not only the object's position but also the surrounding
 \texttt{nside=32} HEALPixels, leading to inefficient coverage of the actual
@@ -506,8 +524,8 @@ but no dithers within a single night for better efficiency in observing. We foun
 a large set of background images to smooth over the chip gaps, the lack of
 intra-night dithering produced image sets that DM could not effectively combine
 into coadds. We therefore added intra-night dithering alongside the existing
-night-to-night dithers, both in the SV configuration and in the baseline LSST
-configuration.
+night-to-night dithers at the cost of a short slew and settle period after every visit, 
+both in the SV configuration and in the baseline LSST configuration.
 
 The wide-field portion of the SV survey was also the first opportunity to test
 template generation using images obtained from the standard LSST sky
@@ -529,7 +547,13 @@ images in each bandpass.
 
 The SV survey provided a valuable opportunity to compare simulated observations
 against those actually acquired. We were able to validate our model telemetry
-inputs, but comparing the more detailed behavior of the FBS proved challenging.
+inputs, and even use the models to identify performance issues at the summit. 
+By comparing the predicted visit gaps based on the slew model and expected 
+overheads to the actual visit gaps, we could identify periods where the expected
+overheads had increased, such as when the SchedulerCSC was only configuring 
+a single script at a time instead of configuring the next two scripts ahead of time.
+
+Comparing more detailed behavior of the FBS from simulations to reality proved challenging.
 The principal difficulty was that the SV survey was not the sole activity on
 the telescope: large portions of many nights were spent on engineering tests,
 and additional nights were lost to weather, so the periods of true SV
@@ -621,7 +645,12 @@ community in a way that is both informative and sustainable. These refinements
 will continue throughout operations as the scientific landscape evolves and as
 observatory performance is better characterized on the sky.
 
-With the FBS now scheduling LSST observations in real time, the framework
+As part of the commissioning surveys that ran from May to September 2025, the FBS 
+drove the acquisition of over 20,000 science visits, including over 13,000 designed to be similar to 
+the Wide Fast Deep survey, just under 1000 visits designed to be like Deep Drilling Fields, 
+and almost 200 visits to test ToO acquisition. In the period of early operations
+from October 2025 to present, the FBS has been responsible for choosing almost 50,000 
+additional visits.  With the FBS now scheduling LSST observations in real time, the framework
 described in this paper provides the foundation for ten years of survey
 operations and for the continued optimization of Rubin's scientific return.
 
