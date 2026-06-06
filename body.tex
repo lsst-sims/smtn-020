@@ -95,15 +95,15 @@ also allowing prioritization between surveys.
 
 \begin{figure}
   \centering
-  \includegraphics[width=0.4\textwidth]{figs/m5diff.pdf}
-  \includegraphics[width=0.4\textwidth]{figs/slew.pdf}
-  \includegraphics[width=0.4\textwidth]{figs/footprint.pdf}
-  \includegraphics[width=0.4\textwidth]{figs/survey_choice.pdf}
+  \includegraphics[width=0.45\textwidth]{figs/m5diff.pdf}
+  \includegraphics[width=0.45\textwidth]{figs/slew.pdf}
+  \includegraphics[width=0.45\textwidth]{figs/footprint.pdf}
+  \includegraphics[width=0.45\textwidth]{figs/survey_choice.pdf}
   \caption{The primary basis functions to balance image depth, uniform coverage, and on-sky efficiency
   are the M5DiffBasisFuntion, the SlewBasisFunction, and the FootprintBasisFunction, shown in the first three 
   panels respectively. The stripe across the FootprintBasisFunction corresponds with the Galactic Plane, where
   the number of desired observations in this bandpass is lower than in the adjacent areas.  
-  The red triangle indicates the location of zenith, above Rubin, and in the SlewBasisFunction,
+  These are alt-az plots, with zenith at the center. In the SlewBasisFunction,
   the red X marks the current pointing of the telescope. These, combined with additional basis functions to fine tune
   survey visit choices and including the standard masks from Figure~\ref{fig:masks}, are shown in the final panel.
   The final panel also shows the next pointing that would be chosen by this survey, as a red circle. }
@@ -123,8 +123,12 @@ than the revisit gap, obtaining the predefined observation sequence at each
 field's location and moving to the next nearest field after each sequence.
 
 \paragraph{Target of Opportunity (\texttt{ToOScriptedSurvey})}
-The \texttt{ToOScriptedSurvey} class uses multiple inheretance from the above  \texttt{Survey} classes
-respond to target of opportunity (ToO) events. The current configuration includes strategies for following up mulitple gravitational wave event triggers, neutrino detector triggers, solar system objects, and Galactic supernova. Most of the ToO follow up strategies were initially developed in Andreoni et al, 2022~\cite{Andreoni2022}.
+The \texttt{ToOScriptedSurvey} class uses multiple inheritance to produce
+a mix between the \texttt{ScriptedSurvey} and \texttt{BseMarkovSurvey} 
+to respond to Target of Opportunity (ToO) events over footprints that can vary
+widely in size on the sky.  This allows a limited set of predefined sequences to be 
+carried out in dynamically determined, efficient ordering over large areas of sky. 
+
 
 \subsection{Masks and Constraints}
 \label{sec:masks}
@@ -157,13 +161,13 @@ night, in case dome closure was delayed by system issues.
 \begin{figure}
   \centering
   \includegraphics[width=0.8\textwidth]{figs/standard_masks.pdf}
-  \caption{Example sky map showing the standard masks applied to all
+  \caption{Example alt-az map showing the standard masks applied to all
     \texttt{Survey} classes. Masked regions above the horizon are shown in brown and include
     altitude and azimuth limits (with a zenith exclusion zone), a
     30\,degree Moon avoidance zone, and exclusion regions around Jupiter
      and Venus (Mars is not visible).  The
     unmasked area (light blue) represents the sky available for scheduling at
-    this example epoch. The red triangle indicates the location of zenith, above Rubin.}
+    this example epoch.}
   \label{fig:masks}
 \end{figure}
 
@@ -221,7 +225,11 @@ tiers. This complexity supports a wide range of observing modes, including:
 \begin{itemize}
   \item \textbf{Target of Opportunity (ToO) observations}, in which a
     pre-defined sequence of observations must be executed if conditions
-    permit in response to an external alert trigger.
+    permit in response to an external alert trigger. 
+    The current configuration includes strategies for following up multiple 
+    gravitational wave event triggers, neutrino detector triggers, 
+    solar system objects, and Galactic supernova.  Most of the ToO follow up 
+    strategies were initially developed in Andreoni et al, 2022~\cite{Andreoni2022}.
   \item \textbf{Deep Drilling Field (DDF) observations}, in which a predefined
   sequence of visits are executed with a regular cadence, independently observing
    each of five DDF fields at appropriate times,
@@ -287,7 +295,7 @@ validated against on-site measurements at the summit~\cite{2016SPIE.9910E..1AY}.
 Combining these models with the expected optical throughput of the telescope 
 yields an estimate of the five-sigma point-source depth for each image~\cite{SMTN-002}. Weather
 downtime is extrapolated from historical cloud-coverage records collected
-on-site~\cite{WEATHER}.
+on-site.
 
 \subsection{Observatory Performance Models}
 \label{sec:obs_models}
@@ -512,7 +520,7 @@ of interest---larger than had been anticipated when designing the FBS ToO
 inefficient: portions of the area of interest set below the horizon before the
 scheduler returned for subsequent cycles in different bandpasses. We have since
 added logic so that the FBS targets large ToO regions in smaller chunks ordered
-by Right Ascension, increasing the likelyhood that the full area is covered before any portion
+by Right Ascension, increasing the likelihood that the full area is covered before any portion
 sets.
 
 \subsection{Feedback from Data Management}
