@@ -318,7 +318,7 @@ incorporated.
   \includegraphics[width=0.4\textwidth]{figs/SlewModelVsVisitGap.pdf}
   \caption{The slew model could accurately predict the time required to move
   the Simonyi Telescope Mount Assembly in altitude and azimuth, as shown by 
-  this comparison from a period during the SV survey, 2025-07-01 to 2025-07-10.
+  this comparison from a period during the Science Validation (SV) survey, 2025-07-01 to 2025-07-10.
   However, the slew model was still somewhat inaccurate in predicting the entire
   visit gap. The offset of 1.6~seconds shown by the dotted red line can be explained
   by time required to configure and run scripts to execute the next step in the slew, 
@@ -365,7 +365,7 @@ to fully commission the FBS for LSST-like observations.
 \subsection{Simonyi Telescope Commissioning}
 \label{sec:simonyi_onsky}
 
-At the start of on-sky commissioning with LSSTCam on the Simonyi telescope, the
+At the start of on-sky commissioning with LSSTCam on the Simonyi Survey telescope, the
 FBS was used to execute simple observing programs consisting of a small number of
 fields observed through a fixed sequence of bandpasses. Similar programs had
 previously been carried out with LSSTComCam \cite{SITCOMTN-149, 2022SPIE12184E..0JS}. 
@@ -381,7 +381,7 @@ by including only a SlewBasisFunction.
 
 The full Science Validation (SV) survey with LSSTCam began at the end of April
 2025, marking the first deployment of an FBS configuration comparable in
-complexity to the full LSST survey. The SV survey plan is described in Clavar et al 2025~
+complexity to that of the LSST. The SV survey plan is described in Clavar et al 2025~
 \cite{SITCOMTN-005}; in brief, approximately 3{,}000\,deg$^{2}$ along the
 ecliptic were targeted for observations in a mode roughly approximating standard
 LSST Wide-Fast-Deep operations, albeit with a denser cadence and a smaller
@@ -390,16 +390,16 @@ run with the FBS, which were used to position the 3{,}000\,deg$^{2}$ footprint
 on the sky for optimal visibility during the SV observing period. 
 
 The FBS configuration used for the SV survey exercised most of the key features
-required for the full LSST survey. The configuration included multiple tiers,
+required for the LSST. The configuration included multiple tiers,
 with reward-based surveys driving the bulk of the wide-area observations and
 \texttt{ScriptedSurvey} instances handling Deep Drilling Fields (DDFs).
 Operating in this mode provided commissioning experience that was not possible
-with the simpler programs used earlier. The FBS was now making genuine
+with the simpler programs used earlier. The FBS was now making genuine, independent
 scheduling decisions, selecting the next pointing from a relatively large pool of
 candidates based on current conditions and survey history rather than
 executing a short, predetermined sequence on a single field. The success of the 
-FBS and SchedulerCSC during the SV survey demonstrated their capability
-of scheduling the LSST during full operations.
+FBS and SchedulerCSC during the SV survey demonstrated their readiness
+to schedule the LSST through full operations.
 
 
 \subsubsection{Debugging with Artifacts}
@@ -427,14 +427,14 @@ artifacts during this phase include:
   \item \textbf{Unexpected slew to an unrelated field.}
     After an initial sequence of visits, the FBS unexpectedly slewed away from the
     intended field. The targets and observations recorded in the EFD were
-    reasonable and matched the on-sky behavior, but this was not the 
-    desired behavior (staying in the same location and taking a second sequence
-    of visits of the intended field). It proved difficult to investigate the behavior
+    consistent with the on-sky behavior, but this was not the 
+    desired behavior, namely, staying in the same location and taking a second sequence
+    of visits. It proved difficult to investigate the behavior
     from the snapshots and summit conditions available, as there was no
     snapshot for the second series of visits -- only every snapshot was being 
     saved. The survey scheduling team happened to be online and available
-    during the night and began to investigate, but were hampered by the missing
-    information. After several hours of work to attempt to fill in the gaps, we were able
+   that night and began to investigate, but were hampered by the missing
+    information. After several hours of work to attempt to fill in the gaps, the team were able
     to recreate the unexpected behavior. 
     The root cause was a configuration error: the field selection was
     driven by a slew-time basis function that was configured per-bandpass, and the
@@ -482,7 +482,7 @@ earliest stages of commissioning. No comparable issues were observed during
 execution of the SV program. One Target of Opportunity (ToO) sequence failed
 to execute when desired, but this was quickly traced to the fact that the ToO
 target was closer than 30\,degrees from the Moon: the FBS was behaving exactly
-as intended, keeping the observatory within predefined operational guidelines. 
+as intended, keeping the observatory within predefined operational constraints. 
 
 
 \section{Lessons Learned}\label{sec:lessonslearned}
@@ -530,8 +530,8 @@ over a large area, using configurations similar to those planned for LSST
 operations, would interact with Rubin's Data Management (DM) pipelines.
 
 Earlier commissioning surveys had observed the DDF pointings, but with sequences
-unique to early commissioning. The SV survey was the first to observe the DDFs
-using the planned LSST sequences, which included small night-to-night dithers
+unique to early commissioning. The SV survey was the first time the DDFs
+were observed using the planned LSST sequences, which included small night-to-night dithers
 but no dithers within a single night for better efficiency in observing. We found that, without
 a large set of background images to smooth over the chip gaps, the lack of
 intra-night dithering produced image sets that DM could not effectively combine
@@ -554,7 +554,7 @@ template goal, activated when atmospheric seeing is good. This increases the
 likelihood that the full sky will reach the required number of high-quality
 images in each bandpass.
 
-\subsection{Comparison of Simulations to On-Sky Performance}
+\subsection{Comparison of Simulated to On-Sky Performance}
 \label{sec:comp}
 
 The SV survey provided a valuable opportunity to compare simulated observations
@@ -565,7 +565,7 @@ overheads to the actual visit gaps, we could identify periods where the expected
 overheads had increased, such as when the SchedulerCSC was only configuring 
 a single script at a time instead of configuring the next two scripts ahead of time.
 
-Comparing more detailed behavior of the FBS from simulations to reality proved challenging.
+Comparing the detailed behavior of the FBS between simulations and on-sky operations proved challenging.
 The principal difficulty was that the SV survey was not the sole activity on
 the telescope: large portions of many nights were spent on engineering tests,
 and additional nights were lost to weather, so the periods of true SV
