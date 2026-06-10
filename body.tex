@@ -155,7 +155,7 @@ masks applied to all surveys include:
 
 Figure~\ref{fig:masks} illustrates these standard masks at a specific time
 
-During commissioning, an additional mask ensured that the Simonyi telescope
+During commissioning, an additional mask ensured that the Simonyi telescope\cite{2024SPIE13094E..09S}
 remained pointed away from the rising Sun during the last three hours of the
 night, in case dome closure was delayed by system issues.
 
@@ -254,6 +254,9 @@ tiers. This complexity supports a wide range of observing modes including:
     of visits per pointing rather than a pair. 
  \end{itemize}
 %
+
+The details of the algorithms implemented within the \texttt{BasisFunctions} and 
+\texttt{Surveys} will be described in a future paper\cite{SMTN-021}. 
 This flexibility allows the same scheduling framework to serve purposes ranging
 from short on-sky commissioning sequences to the full LSST survey, and from
 real-time observing to ten year simulations. 
@@ -262,15 +265,17 @@ real-time observing to ten year simulations.
 \section{Survey Simulations}
 \label{sec:simulations}
 
-The algorithms in the FBS are designed to make pointing decisions throughout the
-night under realistic observing conditions, while working towards scientific goals
-that can only be realized over much longer timeframes. To tune these algorithms and select
-the overall survey strategy that best satisfies the wide range of 10-yr LSST science
-goals, the FBS is often run in a simulation mode using the same
-\texttt{rubin\_scheduler} code base as in real-time operations, but with simulated
-telemetry replacing measurements from the summit and a model of the
-observatory's response replacing actually acquired observations.  
-This allows us to test variations on the scheduler configuration as well as generate 
+
+The FBS acts as a modular decision tree, with different Surveys containing 
+different Basis Functions that act together to choose the observations. 
+Its algorithms make pointing decisions throughout the night under realistic observing conditions, 
+while working toward scientific goals that can only be realized over much longer timeframes. 
+To tune these algorithms and select the overall survey strategy that best satisfies the wide r
+ange of 10-yr LSST science goals, the FBS is often run in a simulation mode using 
+the same \texttt{rubin\_scheduler} code base as in real-time operations, 
+but with simulated telemetry replacing measurements from the summit and a 
+model of the observatory's response replacing actually acquired observations. 
+This allows us to test variations on the scheduler configuration and to generate 
 predictions for survey performance into the future.
 
 The FBS has been tested and developed against simulated telemetry and
@@ -322,7 +327,7 @@ incorporated.
   \includegraphics[width=0.4\textwidth]{figs/SlewModelVsVisitGap.pdf}
   \caption{The slew model could accurately predict the time required to move
   the Simonyi Telescope Mount Assembly in altitude and azimuth, as shown by 
-  this comparison from a period during the Science Validation (SV) survey, 2025-07-01 to 2025-07-10.
+  this comparison from a period during the commissioning period between 2025-07-01 to 2025-07-10.
   However, the slew model was still somewhat inaccurate in predicting the entire
   visit gap. The offset of 1.6~seconds shown by the dotted red line can be explained
   by time required to configure and run scripts to execute the next step in the slew, 
@@ -336,7 +341,7 @@ incorporated.
 \label{sec:onsky}
 
 At the summit, the FBS operates within the observatory's Scheduler Commandable
-SAL Component (SchedulerCSC)~\cite{2024SPIE13101E..18R, 2016SPIE.9910E..13D}. The SchedulerCSC manages all interfaces with the
+SAL Component (SchedulerCSC)\footnote{\url{https://ts-scheduler.lsst.io}}. The SchedulerCSC manages all interfaces with the
 observatory itself: gathering telemetry, commanding pointing requests, and
 handling the timing and queuing of observations selected by the FBS.
 
@@ -361,7 +366,7 @@ also gave observing specialists greater opportunity, and greater need,  to modif
 observations as they were acquired (e.g., changing the order or repeating a
 failed observation) outside of the FBS interface, and these ad hoc variations were difficult to capture
 in the recorded artifacts. The scheduling decisions themselves were also
-simpler: the target list was short and the selection algorithms bore little
+simpler: the target list was short and the selection process bore little
 resemblance to those required for the full LSST survey. AuxTel use was therefore
 extremely valuable for integration testing but was not expected to be sufficient
 to fully commission the FBS for LSST-like observations.
@@ -369,7 +374,7 @@ to fully commission the FBS for LSST-like observations.
 \subsection{Simonyi Telescope Commissioning}
 \label{sec:simonyi_onsky}
 
-At the start of on-sky commissioning with LSSTCam on the Simonyi Survey telescope, the
+At the start of on-sky commissioning with LSSTCam\cite{2024SPIE13096E..1OL, 2024SPIE13096E..1SR}  on the Simonyi Survey telescope, the
 FBS was used to execute simple observing programs consisting of a small number of
 fields observed through a fixed sequence of bandpasses. Similar programs had
 previously been carried out with LSSTComCam \cite{SITCOMTN-149, 2022SPIE12184E..0JS}. 
@@ -496,7 +501,7 @@ as intended, keeping the observatory within predefined operational constraints.
 
 The use of the FBS for the SV survey, as well as its subsequent use during
 Rubin's early operations phase, has generally gone very smoothly. There are, of
-course, areas with room for improvement, either in the algorithms of the FBS
+course, areas with room for improvement, either in the decision making process of the FBS
 itself or in its interactions with the SchedulerCSC. We have also gained
 additional first-hand knowledge of the precise needs for survey progress
 reporting and for downstream data processing.
